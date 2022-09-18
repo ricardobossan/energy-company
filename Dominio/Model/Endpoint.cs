@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dominio.Enum;
 
-namespace Dominio
+namespace Dominio.Model
 {
   public class Endpoint
   {
