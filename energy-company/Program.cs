@@ -15,7 +15,6 @@ namespace energy_company
     {
       IEndpointService endpointService = new EndpointService();
 
-
       List<Endpoint> endpoints = new List<Endpoint>();
 
       bool isRunning = true;
@@ -37,7 +36,8 @@ namespace energy_company
         switch (input)
         {
           case '1':
-            #region INSERT_ENDPOINT
+            //! Inserts endpoint
+            // TODO: Tenta isolar lógica do view.
             Endpoint endpoint = new Endpoint();
 
             #region ASSIGN_METER_MODEL
@@ -125,18 +125,35 @@ namespace energy_company
 
             endpoints.Add(endpoint);
 
-            StringBuilder sb = new StringBuilder();
-            sb.Append("ENDPOINT ADDED:\n\n" +
-                          "Meter Model: " + Enum.GetName(typeof(MeterModel), endpoint.MeterModel) + " (n. " + (int)endpoint.MeterModel + ")" + "\n" +
-                          "Serial Number: " + endpoint.SerialNumber + "\n" +
-                          "Meter Number: " + endpoint.MeterNumber + "\n" +
-                          "Firmware Version: " + endpoint.FirmwareVersion + "\n" +
-                          "Switch State: " + Enum.GetName(typeof(SwitchState), endpoint.SwitchState) + " (n. " + endpoint.SwitchState + ")");
-            sb.Append("\n");
-            Print(sb.ToString(), PrintType.DONE);
-            #endregion
+            Print("ENDPOINT ADDED:\n" + GetEndpointDetails(endpoint), PrintType.DONE);
+            break;
+          case '2':
+            //TODO: Alters endpoint
+
+            break;
+          case '3':
+            // TODO: Delete endpoint
+            try
+            {
+              Print("Please insert the serial number for the endpoint you wish to delete:", PrintType.INSTRUCTION);
+              string serialNumber = Console.ReadLine();
+              Print("Are you sure you wish to delete the endpoint with the matching serial number '" + serialNumber + "'? " + "This action cannot be undone.", PrintType.INSTRUCTION);
+              Print("y/N", PrintType.INSTRUCTION);
+              string confirmDelete = Console.ReadLine();
+              if (confirmDelete == "y")
+              {
+                endpoints = endpointService.Delete(serialNumber, endpoints);
+                Print("ENDPOINT WITH SERIAL NUMBER " + serialNumber + " WAS DELETED", PrintType.DONE);
+              }
+              else Print("NO ENDPOINT WAS DELETED", PrintType.ERROR);
+            }
+            catch (Exception e)
+            {
+              Print(e.Message, PrintType.ERROR);
+            }
             break;
           case '4':
+            //! Lists endpoints
             try
             {
               Print(endpointService.List(endpoints), PrintType.DONE);
@@ -147,20 +164,39 @@ namespace energy_company
             }
             break;
           case '5':
-            #region FIND_BY_SERIAL_NUMBER
-
-            #endregion
+            //! Finds endpoint by serial number
+            try
+            {
+              Print("Please insert the serial number for the endpoint you wish to find:", PrintType.INSTRUCTION);
+              string serialNumber = Console.ReadLine();
+              Endpoint endpointFound = endpointService.GetBySerialNumber(serialNumber, endpoints);
+              Print("ENDPOINT FOUND:\n" + GetEndpointDetails(endpointFound), PrintType.DONE);
+            }
+            catch (Exception e)
+            {
+              Print(e.Message, PrintType.ERROR);
+            }
             break;
           case '6':
-            #region EXIT
             isRunning = false;
-            #endregion
             break;
           default:
             Print("The provided value does not match any of the given options. Please try again.", PrintType.ERROR);
             break;
         }
       }
+    }
+
+    private static string GetEndpointDetails(Endpoint endpoint)
+    {
+      StringBuilder sb = new StringBuilder();
+      sb.Append("Meter Model: " + Enum.GetName(typeof(MeterModel), endpoint.MeterModel) + " (n. " + (int)endpoint.MeterModel + ")" + "\n" +
+                    "Serial Number: " + endpoint.SerialNumber + "\n" +
+                    "Meter Number: " + endpoint.MeterNumber + "\n" +
+                    "Firmware Version: " + endpoint.FirmwareVersion + "\n" +
+                    "Switch State: " + Enum.GetName(typeof(SwitchState), endpoint.SwitchState) + " (n. " + endpoint.SwitchState + ")");
+      sb.Append("\n");
+      return sb.ToString();
     }
 
     public static void Print(string str, PrintType prntType)

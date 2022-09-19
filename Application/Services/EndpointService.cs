@@ -11,14 +11,25 @@ namespace Application.Services
 {
   public class EndpointService : IEndpointService
   {
-    public IEnumerable<Endpoint> Delete(string serialNumber)
+    public List<Endpoint> Delete(string serialNumber, IEnumerable<Endpoint> endpoints)
+    {
+      Endpoint endpointFound = endpoints.Where(e => e.SerialNumber == serialNumber).FirstOrDefault();
+      if (endpointFound == null) throw new Exception("No endpoint with a matching serial number was found.");
+
+      return endpoints.Where(e => e.SerialNumber != serialNumber).ToList();
+    }
+
+    public Endpoint Edit(Endpoint endpoint)
     {
       throw new NotImplementedException();
     }
 
-    public Endpoint GetBySerialNumber(string serialNumber)
+    public Endpoint GetBySerialNumber(string serialNumber, IEnumerable<Endpoint> endpoints)
     {
-      throw new NotImplementedException();
+      Endpoint endpointFound = endpoints.Where(e => e.SerialNumber == serialNumber).FirstOrDefault();
+      if (endpointFound != null) return endpointFound;
+
+      throw new Exception("No endpoint with a matching serial number was found.");
     }
 
     public string List(IEnumerable<Endpoint> endpoints)
@@ -41,7 +52,7 @@ namespace Application.Services
         return sbEL.ToString();
       }
 
-      throw new Exception("NO ENDPOINT FOUND");
+      throw new Exception("No endpoint found");
     }
   }
 }

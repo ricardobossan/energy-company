@@ -9,8 +9,9 @@ namespace Dominio.Services
 {
   public interface IEndpointService
   {
+    List<Endpoint> Delete(string serialNumber, IEnumerable<Endpoint> endpoints);
+    Endpoint Edit(Endpoint endpoint);
+    Endpoint GetBySerialNumber(string serialNumber, IEnumerable<Endpoint> endpoints);
     string List(IEnumerable<Endpoint> endpoints);
-    Endpoint GetBySerialNumber(string serialNumber);
-    IEnumerable<Endpoint> Delete(string serialNumber);
   }
 }
