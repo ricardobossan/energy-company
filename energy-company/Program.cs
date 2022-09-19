@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Application.Services;
 using Dominio.Enum;
 using Dominio.Model;
-
+using Dominio.Services;
 
 namespace energy_company
 {
@@ -12,12 +13,15 @@ namespace energy_company
   {
     static void Main(string[] args)
     {
-      List<Endpoint> _endpoints = new List<Endpoint>();
-      Console.ForegroundColor = ConsoleColor.White;
+      IEndpointService endpointService = new EndpointService();
+
+
+      List<Endpoint> endpoints = new List<Endpoint>();
 
       bool isRunning = true;
       while (isRunning)
       {
+        Console.ForegroundColor = ConsoleColor.White;
         Print("Insert a number from the options and press ENTER:\n\n" +
                     "1) Insert a new endpoint\n" +
                     "2) Edit an existing endpoint\n" +
@@ -33,9 +37,10 @@ namespace energy_company
         switch (input)
         {
           case '1':
+            #region INSERT_ENDPOINT
             Endpoint endpoint = new Endpoint();
 
-            #region ASSIGN_METERMODEL
+            #region ASSIGN_METER_MODEL
             bool properMMInput = false;
             while (!properMMInput)
             {
@@ -62,7 +67,7 @@ namespace energy_company
               }
             }
             #endregion
-            #region ASSIGN_SERIALNUMBER
+            #region ASSIGN_SERIAL_NUMBER
             Print("Insert the serial number:", PrintType.INSTRUCTION);
 
             string SNInput = Console.ReadLine();
@@ -70,7 +75,7 @@ namespace energy_company
 
             Print("Serial Number assigned: " + endpoint.SerialNumber, PrintType.SUCCESS);
             #endregion
-            #region ASSIGN_METERNUMBER
+            #region ASSIGN_METER_NUMBER
             Print("Insert the meter number:", PrintType.INSTRUCTION);
 
             string MNInput = Console.ReadLine();
@@ -78,7 +83,7 @@ namespace energy_company
 
             Print("Meter number assigned: " + endpoint.MeterNumber, PrintType.SUCCESS);
             #endregion
-            #region ASSIGN_FIRMWAREVERSION
+            #region ASSIGN_FIRMWARE_VERSION
             Print("Insert the firmeware version:", PrintType.INSTRUCTION);
 
             string FVInput = Console.ReadLine();
@@ -104,10 +109,10 @@ namespace energy_company
                   throw new Exception("\nThe provided value does not match any known Switch State. Please try again.\n");
                 }
 
-                object switchStateEnum= Enum.Parse(typeof(SwitchState), SSInput);
+                object switchStateEnum = Enum.Parse(typeof(SwitchState), SSInput);
                 endpoint.SwitchState = (int)switchStateEnum;
 
-                Print("Switch State assigned: " + endpoint.SwitchState + "(" + Enum.GetName(typeof(SwitchState),switchStateEnum) + ")", PrintType.SUCCESS);
+                Print("Switch State assigned: " + endpoint.SwitchState + "(" + Enum.GetName(typeof(SwitchState), switchStateEnum) + ")", PrintType.SUCCESS);
 
                 properSSInput = true;
               }
@@ -118,7 +123,7 @@ namespace energy_company
             }
             #endregion
 
-            _endpoints.Add(endpoint);
+            endpoints.Add(endpoint);
 
             StringBuilder sb = new StringBuilder();
             sb.Append("ENDPOINT ADDED:\n\n" +
@@ -129,34 +134,27 @@ namespace energy_company
                           "Switch State: " + Enum.GetName(typeof(SwitchState), endpoint.SwitchState) + " (n. " + endpoint.SwitchState + ")");
             sb.Append("\n");
             Print(sb.ToString(), PrintType.DONE);
-
+            #endregion
             break;
           case '4':
-            if (_endpoints.Count > 0)
+            try
             {
-              StringBuilder sbEL = new StringBuilder();
-              sbEL.Append("ENDPOINTS LIST:\n\n");
-              foreach (var e in _endpoints)
-              {
-                sbEL.Append(
-                  "Meter Model: " + Enum.GetName(typeof(MeterModel), e.MeterModel) + " (n. " + (int)e.MeterModel + ")" + "\n" +
-                  "Serial Number: " + e.SerialNumber + "\n" +
-                  "Meter Number: " + e.MeterNumber + "\n" +
-                  "Firmware Version: " + e.FirmwareVersion + "\n" +
-                  "Switch State: " + Enum.GetName(typeof(SwitchState), e.SwitchState) + " (n. " + e.SwitchState + ")"
-                  );
-                sbEL.Append("\n");
-              }
-              Print(sbEL.ToString(), PrintType.DONE);
+              Print(endpointService.List(endpoints), PrintType.DONE);
             }
-            else
+            catch (Exception e)
             {
-              Print("\nNO ENDPOINT FOUND\n", PrintType.DONE);
+              Print(e.Message, PrintType.ERROR);
             }
+            break;
+          case '5':
+            #region FIND_BY_SERIAL_NUMBER
 
+            #endregion
             break;
           case '6':
+            #region EXIT
             isRunning = false;
+            #endregion
             break;
           default:
             Print("The provided value does not match any of the given options. Please try again.", PrintType.ERROR);

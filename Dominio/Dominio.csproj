@@ -46,6 +46,7 @@
     <Compile Include="Enum\MeterModel.cs" />
     <Compile Include="Enum\SwitchState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\IEndpointService.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
