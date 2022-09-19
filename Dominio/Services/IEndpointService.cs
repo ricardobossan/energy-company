@@ -10,7 +10,8 @@ namespace Dominio.Services
   public interface IEndpointService
   {
     List<Endpoint> Delete(string serialNumber, IEnumerable<Endpoint> endpoints);
-    Endpoint Edit(Endpoint endpoint);
+    List<Endpoint> Edit(Endpoint endpoint, List<Endpoint> endpoints);
+    List<Endpoint> Insert(Endpoint endpoint, List<Endpoint> endpoints);
     Endpoint GetBySerialNumber(string serialNumber, IEnumerable<Endpoint> endpoints);
     string List(IEnumerable<Endpoint> endpoints);
   }

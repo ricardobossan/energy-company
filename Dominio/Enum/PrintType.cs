@@ -9,6 +9,7 @@ namespace Dominio.Enum
   public enum PrintType
   {
     INSTRUCTION,
+    WARNING,
     DONE,
     SUCCESS,
     ERROR 

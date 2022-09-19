@@ -1,4 +1,5 @@
-﻿using System;
+﻿// TODO: Adds comments to methods
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,7 @@ namespace energy_company
       while (isRunning)
       {
         Console.ForegroundColor = ConsoleColor.White;
+
         Print("Insert a number from the options and press ENTER:\n\n" +
                     "1) Insert a new endpoint\n" +
                     "2) Edit an existing endpoint\n" +
@@ -123,27 +125,122 @@ namespace energy_company
             }
             #endregion
 
-            endpoints.Add(endpoint);
+            endpoints = endpointService.Insert(endpoint, endpoints);
 
             Print("ENDPOINT ADDED:\n" + GetEndpointDetails(endpoint), PrintType.DONE);
             break;
           case '2':
             //TODO: Alters endpoint
+            Print("Please insert the serial number for the endpoint you wish to edit:", PrintType.INSTRUCTION);
+            string serialNumberToAlter = Console.ReadLine();
+            Print("Are you sure you wish to edit the endpoint with the matching serial number '" + serialNumberToAlter + "'?", PrintType.INSTRUCTION);
+            Print("y/N", PrintType.INSTRUCTION);
+            string confirmAlter = Console.ReadLine();
+            if (confirmAlter == "y")
+            {
+              Endpoint newEndpoint = new Endpoint();
+              Endpoint oldEndpoint = endpointService.GetBySerialNumber(serialNumberToAlter, endpoints);
 
+              #region ALTER_METER_MODEL
+              bool properMMInputAlter = false;
+              while (!properMMInputAlter)
+              {
+                Print("Insert the meter model. Options:", PrintType.INSTRUCTION);
+                string[] meterModelNames = Enum.GetNames(typeof(MeterModel));
+                foreach (string model in meterModelNames) Console.WriteLine(model);
+                Print("Current Model Meter Model: " + Enum.GetName(typeof(MeterModel), oldEndpoint.MeterModel), PrintType.WARNING);
+                string MMInputAlter = Console.ReadLine().ToUpper();
+
+                try
+                {
+                  if (!meterModelNames.Contains(MMInputAlter))
+                  {
+                    throw new Exception("\nThe provided value does not match any known MeterModel. Please try again.\n");
+                  }
+
+                  newEndpoint.MeterModel = (MeterModel)Enum.Parse(typeof(MeterModel), MMInputAlter);
+                  newEndpoint.MeterModelId = (int)newEndpoint.MeterModel;
+                  Print("Meter Model assigned: " + Enum.GetName(typeof(MeterModel), newEndpoint.MeterModel) + " (n. " + (int)newEndpoint.MeterModel + ")", PrintType.SUCCESS);
+                  properMMInputAlter = true;
+                }
+                catch (Exception e)
+                {
+                  Print(e.Message, PrintType.ERROR);
+                }
+              }
+              #endregion
+              #region Keeps current serial number, because it is the index for the endpoint.
+              newEndpoint.SerialNumber = oldEndpoint.SerialNumber;
+              #endregion
+              #region ALTER_METER_NUMBER
+              Print("Insert the meter number:", PrintType.INSTRUCTION);
+
+              Print("Current Model Meter Number: " + oldEndpoint.MeterNumber, PrintType.WARNING);
+              string MNInputAlter = Console.ReadLine();
+              newEndpoint.MeterNumber = int.Parse(MNInputAlter);
+
+              Print("Meter number assigned: " + newEndpoint.MeterNumber, PrintType.SUCCESS);
+              #endregion
+              #region ALTER_FIRMWARE_VERSION
+              Print("Insert the firmeware version:", PrintType.INSTRUCTION);
+
+              Print("Current Model Meter Number: " + oldEndpoint.FirmwareVersion, PrintType.WARNING);
+              string FVInputAlter = Console.ReadLine();
+              newEndpoint.FirmwareVersion = FVInputAlter;
+
+              Print("Firmware version assigned: " + newEndpoint.FirmwareVersion, PrintType.SUCCESS);
+              #endregion
+              #region ALTER_SWITCHSTATE
+              bool properSSInputAlter = false;
+              while (!properSSInputAlter)
+              {
+                Print("Insert the Switch State. Options:\n", PrintType.INSTRUCTION);
+
+                string[] switchStateNames = Enum.GetNames(typeof(SwitchState));
+                foreach (string switchState in switchStateNames) Console.WriteLine(switchState);
+
+                Print("Current Model Switch State: " + Enum.GetName(typeof(SwitchState), oldEndpoint.SwitchState), PrintType.WARNING);
+                string SSInputAlter = Console.ReadLine();
+
+                try
+                {
+                  if (!switchStateNames.Contains(SSInputAlter))
+                  {
+                    throw new Exception("\nThe provided value does not match any known Switch State. Please try again.\n");
+                  }
+
+                  object switchStateEnum = Enum.Parse(typeof(SwitchState), SSInputAlter);
+                  newEndpoint.SwitchState = (int)switchStateEnum;
+
+                  Print("Switch State assigned: " + newEndpoint.SwitchState + "(" + Enum.GetName(typeof(SwitchState), newEndpoint.SwitchState) + ")", PrintType.SUCCESS);
+
+                  properSSInputAlter = true;
+                }
+                catch (Exception e)
+                {
+                  Print(e.Message, PrintType.ERROR);
+                }
+              }
+              #endregion
+
+              endpoints = endpointService.Edit(newEndpoint, endpoints);
+              Print("ENDPOINT WITH SERIAL NUMBER " + serialNumberToAlter + " WAS ALTERED", PrintType.DONE);
+            }
+            else Print("NO ENDPOINT WAS ALTERED", PrintType.ERROR);
             break;
           case '3':
-            // TODO: Delete endpoint
+            //! Deletes endpoint
             try
             {
               Print("Please insert the serial number for the endpoint you wish to delete:", PrintType.INSTRUCTION);
-              string serialNumber = Console.ReadLine();
-              Print("Are you sure you wish to delete the endpoint with the matching serial number '" + serialNumber + "'? " + "This action cannot be undone.", PrintType.INSTRUCTION);
+              string serialNumberToDelete = Console.ReadLine();
+              Print("Are you sure you wish to delete the endpoint with the matching serial number '" + serialNumberToDelete + "'? " + "This action cannot be undone.", PrintType.WARNING);
               Print("y/N", PrintType.INSTRUCTION);
               string confirmDelete = Console.ReadLine();
               if (confirmDelete == "y")
               {
-                endpoints = endpointService.Delete(serialNumber, endpoints);
-                Print("ENDPOINT WITH SERIAL NUMBER " + serialNumber + " WAS DELETED", PrintType.DONE);
+                endpoints = endpointService.Delete(serialNumberToDelete, endpoints);
+                Print("ENDPOINT WITH SERIAL NUMBER " + serialNumberToDelete + " WAS DELETED", PrintType.DONE);
               }
               else Print("NO ENDPOINT WAS DELETED", PrintType.ERROR);
             }
@@ -179,6 +276,7 @@ namespace energy_company
             break;
           case '6':
             isRunning = false;
+            Print("Exiting", PrintType.DONE);
             break;
           default:
             Print("The provided value does not match any of the given options. Please try again.", PrintType.ERROR);
@@ -205,6 +303,11 @@ namespace energy_company
       {
         case PrintType.INSTRUCTION:
           Console.ForegroundColor = ConsoleColor.Yellow;
+          Console.WriteLine(str);
+          Console.ForegroundColor = ConsoleColor.White;
+          break;
+        case PrintType.WARNING:
+          Console.ForegroundColor = ConsoleColor.Magenta;
           Console.WriteLine(str);
           Console.ForegroundColor = ConsoleColor.White;
           break;

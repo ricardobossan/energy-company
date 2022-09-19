@@ -19,9 +19,17 @@ namespace Application.Services
       return endpoints.Where(e => e.SerialNumber != serialNumber).ToList();
     }
 
-    public Endpoint Edit(Endpoint endpoint)
+    public List<Endpoint> Edit(Endpoint endpoint, List<Endpoint> endpoints)
     {
-      throw new NotImplementedException();
+      endpoints = Delete(endpoint.SerialNumber, endpoints);
+      endpoints = Insert(endpoint, endpoints);
+      return endpoints;
+    }
+
+    public List<Endpoint> Insert(Endpoint endpoint, List<Endpoint> endpoints)
+    {
+      endpoints.Add(endpoint);
+      return endpoints;
     }
 
     public Endpoint GetBySerialNumber(string serialNumber, IEnumerable<Endpoint> endpoints)
