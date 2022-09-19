@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enum\PrintType.cs" />
     <Compile Include="Model\Endpoint.cs" />
     <Compile Include="Enum\MeterModel.cs" />
     <Compile Include="Enum\SwitchState.cs" />
